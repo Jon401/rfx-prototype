@@ -1,26 +1,196 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-chart-5: hsl(var(--chart-5));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-ring: hsl(var(--ring));
+  --color-input: hsl(var(--input));
+  --color-border: hsl(var(--border));
+  --color-destructive: hsl(var(--destructive));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card: hsl(var(--card));
+
+  /* Stimulus brand palette */
+  --color-stim-primary: hsl(var(--stim-primary));
+  --color-stim-primary-light: hsl(var(--stim-primary-light));
+  --color-stim-primary-dark: hsl(var(--stim-primary-dark));
+  --color-stim-forest: hsl(var(--stim-forest));
+  --color-stim-mint: hsl(var(--stim-mint));
+  --color-stim-info: hsl(var(--stim-info));
+  --color-stim-info-dark: hsl(var(--stim-info-dark));
+  --color-stim-success: hsl(var(--stim-success));
+  --color-stim-warning: hsl(var(--stim-warning));
+  --color-stim-warning-light: hsl(var(--stim-warning-light));
+  --color-stim-warning-dark: hsl(var(--stim-warning-dark));
+  --color-stim-error: hsl(var(--stim-error));
+  --color-stim-error-light: hsl(var(--stim-error-light));
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* Stimulus brand — HSL tuples */
+  --stim-primary: 152 75% 29%;
+  --stim-primary-light: 152 42% 58%;
+  --stim-primary-dark: 152 70% 22%;
+  --stim-forest: 152 71% 14%;
+  --stim-mint: 152 45% 81%;
+  --stim-emerald: 160 84% 39%;
+  --stim-info: 228 100% 65%;
+  --stim-info-dark: 223 48% 31%;
+  --stim-success: 156 62% 41%;
+  --stim-warning: 42 89% 56%;
+  --stim-warning-light: 40 100% 50%;
+  --stim-warning-dark: 42 84% 52%;
+  --stim-error: 352 68% 50%;
+  --stim-error-light: 352 85% 49%;
+  --stim-error-dark: 352 65% 41%;
+
+  /* shadcn / surface tokens — light mode */
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 25% 17%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 25% 17%;
+  --primary: 146 67% 26%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 120 9% 98%;
+  --secondary-foreground: 215 25% 17%;
+  --muted: 120 6% 95%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 140 33% 99%;
+  --accent-foreground: 146 67% 26%;
+  --destructive: 352 68% 50%;
+  --border: 152 32% 86%;
+  --input: 152 32% 86%;
+  --ring: 146 67% 26%;
+  --radius: 0.5rem;
+
+  --chart-1: 146 67% 26%;
+  --chart-2: 160 84% 39%;
+  --chart-3: 215 16% 65%;
+  --chart-4: 142 76% 36%;
+  --chart-5: 25 95% 53%;
+
+  --sidebar: 120 9% 98%;
+  --sidebar-foreground: 215 25% 17%;
+  --sidebar-primary: 146 67% 26%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 140 33% 99%;
+  --sidebar-accent-foreground: 146 67% 26%;
+  --sidebar-border: 152 32% 86%;
+  --sidebar-ring: 160 84% 39%;
+}
+
+.dark {
+  --stim-primary: 152 42% 58%;
+  --stim-primary-light: 152 42% 65%;
+  --stim-primary-dark: 152 55% 45%;
+  --stim-forest: 152 50% 35%;
+  --stim-mint: 152 30% 25%;
+  --stim-success: 156 62% 48%;
+  --stim-warning-light: 40 100% 55%;
+  --stim-error-light: 352 85% 55%;
+
+  --background: 210 20% 10%;
+  --foreground: 0 0% 95%;
+  --card: 210 20% 12%;
+  --card-foreground: 0 0% 95%;
+  --popover: 210 20% 12%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 146 55% 36%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 20% 14%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 210 20% 16%;
+  --muted-foreground: 210 20% 70%;
+  --accent: 210 20% 16%;
+  --accent-foreground: 0 0% 95%;
+  --destructive: 352 85% 49%;
+  --border: 210 20% 25%;
+  --input: 210 20% 14%;
+  --ring: 160 84% 39%;
+
+  --chart-1: 146 55% 36%;
+  --chart-2: 160 84% 39%;
+  --chart-3: 215 20% 75%;
+  --chart-4: 142 76% 42%;
+  --chart-5: 25 95% 53%;
+
+  --sidebar: 210 20% 8%;
+  --sidebar-foreground: 0 0% 95%;
+  --sidebar-primary: 146 55% 36%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 20% 16%;
+  --sidebar-accent-foreground: 0 0% 95%;
+  --sidebar-border: 210 20% 20%;
+  --sidebar-ring: 146 55% 36%;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold tracking-tight text-foreground;
+    letter-spacing: -0.02em;
+  }
+  a:not([class]) {
+    @apply text-stim-primary hover:text-stim-primary-light dark:text-stim-primary-light dark:hover:text-stim-primary;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .stim-surface-banner-warning {
+    @apply border-stim-warning/30 bg-stim-warning/10 text-foreground;
+  }
+  .stim-surface-banner-error {
+    @apply border-stim-error/30 bg-stim-error/10 text-foreground;
+  }
+  .stim-text-success {
+    @apply text-stim-success;
+  }
 }
