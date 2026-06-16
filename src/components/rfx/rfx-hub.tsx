@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LinkButton } from "@/components/ui/link-button";
@@ -11,6 +12,7 @@ import {
   LateDraftBadge,
   AttributionLine,
 } from "./rfx-badges";
+import { RfxWorkflowBanner } from "./rfx-workflow-banner";
 import { formatDate } from "@/lib/format";
 import { canEditRfx, getDisplayStatus } from "@/lib/rfx-status";
 import type { RfpRecord, RfxRecord } from "@/lib/types";
@@ -85,9 +87,12 @@ export function RfxHubTabs({
   activity: React.ReactNode;
 }) {
   const showAward = rfx.type !== "RFI";
+  const [tab, setTab] = useState("overview");
 
   return (
-    <Tabs defaultValue="overview" className="mt-6">
+    <div className="mt-6 space-y-4">
+      <RfxWorkflowBanner rfx={rfx} onGoToInvitations={() => setTab("invitations")} />
+      <Tabs value={tab} onValueChange={setTab}>
       <TabsList className="flex-wrap h-auto">
         <TabsTrigger value="overview">Overview</TabsTrigger>
         <TabsTrigger value="invitations">Invitations</TabsTrigger>
@@ -104,6 +109,7 @@ export function RfxHubTabs({
       <TabsContent value="submissions" className="mt-4">{submissions}</TabsContent>
       <TabsContent value="award" className="mt-4">{awardClose}</TabsContent>
       <TabsContent value="activity" className="mt-4">{activity}</TabsContent>
-    </Tabs>
+      </Tabs>
+    </div>
   );
 }

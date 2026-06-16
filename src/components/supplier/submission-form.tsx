@@ -17,6 +17,7 @@ import {
 import {
   useStore,
   getSupplierSubmission,
+  getSubmissionId,
 } from "@/lib/store";
 import type {
   RfiRecord,
@@ -28,8 +29,8 @@ import type {
 import { isSubmissionFrozen } from "@/lib/rfx-status";
 import { toast } from "sonner";
 
-function uid() {
-  return `sub-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`;
+function attachmentId() {
+  return `att-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`;
 }
 
 function SubmissionFrozenBanner() {
@@ -60,6 +61,7 @@ export function SupplierSubmissionForm({
   if (rfx.type === "RFI") {
     return (
       <RfiSubmissionForm
+        key={getSubmissionId(rfx.id, supplierId)}
         rfx={rfx}
         supplierId={supplierId}
         existing={existing}
@@ -74,6 +76,7 @@ export function SupplierSubmissionForm({
   if (rfx.type === "RFQ") {
     return (
       <RfqSubmissionForm
+        key={getSubmissionId(rfx.id, supplierId)}
         rfx={rfx}
         supplierId={supplierId}
         existing={existing}
@@ -87,6 +90,7 @@ export function SupplierSubmissionForm({
   }
   return (
     <RfpSubmissionForm
+      key={getSubmissionId(rfx.id, supplierId)}
       rfx={rfx}
       supplierId={supplierId}
       existing={existing}
@@ -128,7 +132,7 @@ function RfiSubmissionForm({
   });
 
   const buildSubmission = (): Submission => ({
-    id: existing?.id ?? uid(),
+    id: getSubmissionId(rfx.id, supplierId),
     rfxId: rfx.id,
     supplierId,
     status: existing?.status ?? "draft",
@@ -229,7 +233,7 @@ function RfqSubmissionForm({
   });
 
   const buildSubmission = (): Submission => ({
-    id: existing?.id ?? uid(),
+    id: getSubmissionId(rfx.id, supplierId),
     rfxId: rfx.id,
     supplierId,
     status: existing?.status ?? "draft",
@@ -347,7 +351,7 @@ function RfpSubmissionForm({
       : 100;
 
   const buildSubmission = (): Submission => ({
-    id: existing?.id ?? uid(),
+    id: getSubmissionId(rfx.id, supplierId),
     rfxId: rfx.id,
     supplierId,
     status: existing?.status ?? "draft",
@@ -378,7 +382,7 @@ function RfpSubmissionForm({
 
   const addMockFile = () => {
     const name = `attachment-${attachments.length + 1}.pdf`;
-    setAttachments((prev) => [...prev, { id: uid(), name }]);
+    setAttachments((prev) => [...prev, { id: attachmentId(), name }]);
   };
 
   return (

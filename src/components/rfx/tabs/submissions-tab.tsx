@@ -20,6 +20,7 @@ import {
 } from "@/lib/store";
 import { formatDate, formatCurrency } from "@/lib/format";
 import { isDeadlinePassed } from "@/lib/rfx-status";
+import { isRfxLive } from "@/lib/rfx-workflow";
 import type { RfpRecord, RfqRecord, RfiRecord, RfxRecord } from "@/lib/types";
 import { RfqComparisonTable } from "@/components/rfx/rfq-comparison-table";
 import { SUBMISSION_STATUS_COLORS } from "@/lib/stimulus-styles";
@@ -60,14 +61,6 @@ export function SubmissionsTab({ rfx }: { rfx: RfxRecord }) {
   const submitted = submissions.filter((s) => s.status === "submitted");
   const submittedIds = new Set(submitted.map((s) => s.supplierId));
 
-  const incomplete = invitations
-    .filter((inv) => !submittedIds.has(inv.supplierId!))
-    .map((inv) => {
-      const sub = submissions.find((s) => s.supplierId === inv.supplierId);
-      const status = getIncompleteStatus(rfx, sub);
-      return { supplierId: inv.supplierId!, sub, status };
-    });
-
   const handleScore = (submissionId: string, rfp: RfpRecord) => {
     const subScores = scores[submissionId];
     if (!subScores) return;
@@ -78,6 +71,22 @@ export function SubmissionsTab({ rfx }: { rfx: RfxRecord }) {
     scoreSubmission(submissionId, criterionScores, currentUserId);
     toast.success("Scores saved");
   };
+
+  const incomplete = invitations
+    .filter((inv) => !submittedIds.has(inv.supplierId!))
+    .map((inv) => {
+      const sub = submissions.find((s) => s.supplierId === inv.supplierId);
+      const status = getIncompleteStatus(rfx, sub);
+      return { supplierId: inv.supplierId!, sub, status };
+    });
+
+  if (!isRfxLive(rfx)) {
+    return (
+      <p className="text-muted-foreground text-sm py-8 text-center">
+        Submissions appear after you publish and invite suppliers.
+      </p>
+    );
+  }
 
   if (submitted.length === 0 && incomplete.length === 0) {
     return (

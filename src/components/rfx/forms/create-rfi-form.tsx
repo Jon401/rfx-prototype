@@ -17,7 +17,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/lib/store";
 import type { RfiQuestion } from "@/lib/types";
-import { CreateSupplierInviteSection } from "./create-supplier-invite-section";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,13 +27,11 @@ function uid() {
 export function CreateRfiForm() {
   const router = useRouter();
   const createRfi = useStore((s) => s.createRfi);
-  const sendInvitations = useStore((s) => s.sendInvitations);
   const currentUserId = useStore((s) => s.currentUserId);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
   const [questions, setQuestions] = useState<RfiQuestion[]>([
     { id: uid(), text: "", required: true, type: "textarea" },
   ]);
@@ -74,17 +71,7 @@ export function CreateRfiForm() {
       questions: validQuestions,
       buyerId: currentUserId,
     });
-    if (selectedSuppliers.length > 0) {
-      sendInvitations(id, {
-        internalSupplierIds: selectedSuppliers,
-        externalSuppliers: [],
-      });
-      toast.success(
-        `RFI published — ${selectedSuppliers.length} supplier(s) invited`
-      );
-    } else {
-      toast.success("RFI created as draft — invite suppliers from the Invitations tab");
-    }
+    toast.success("RFI created as draft — publish it when ready to invite suppliers");
     router.push(`/buyer/rfis/${id}`);
   };
 
@@ -156,14 +143,7 @@ export function CreateRfiForm() {
         ))}
       </div>
 
-      <CreateSupplierInviteSection
-        selectedIds={selectedSuppliers}
-        onChange={setSelectedSuppliers}
-      />
-
-      <Button type="submit">
-        {selectedSuppliers.length > 0 ? "Create & Invite Suppliers" : "Create RFI Draft"}
-      </Button>
+      <Button type="submit">Create RFI Draft</Button>
     </form>
   );
 }

@@ -30,6 +30,7 @@ import {
 import type { RfiRecord, RfqRecord, RfpRecord, RfxRecord } from "@/lib/types";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
+import { isRfxLive } from "@/lib/rfx-workflow";
 
 export function AwardCloseTab({ rfx }: { rfx: RfxRecord }) {
   const router = useRouter();
@@ -54,6 +55,14 @@ export function AwardCloseTab({ rfx }: { rfx: RfxRecord }) {
   const [confirmConvert, setConfirmConvert] = useState(false);
 
   const isClosed = rfx.status === "closed" || rfx.status === "awarded";
+
+  if (!isClosed && !isRfxLive(rfx)) {
+    return (
+      <p className="text-muted-foreground text-sm py-8 text-center max-w-md mx-auto">
+        Publish and invite suppliers to open this solicitation before closing or awarding.
+      </p>
+    );
+  }
 
   if (rfx.type === "RFI") {
     const rfi = rfx as RfiRecord;

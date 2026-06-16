@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { getSubmissionId, isSameSupplierSubmission } from "./submissions";
 import { isSubmissionFrozen } from "./rfx-status";
 import { SEED_DATA } from "./seed-data";
 import { STATUS_COLORS, TYPE_COLORS } from "./stimulus-styles";
@@ -60,7 +61,7 @@ interface StoreActions {
   }) => string;
 
   updateRfx: (id: string, updates: Partial<RfxRecord>) => void;
-  publishRfx: (id: string, supplierIds: string[]) => void;
+  publishRfx: (id: string, buyerId: string) => void;
   closeRfi: (id: string, closeNotes: string) => void;
   toggleShortlist: (rfiId: string, supplierId: string) => void;
   convertRfiToRfp: (rfiId: string) => string | null;
@@ -207,10 +208,29 @@ export const useStore = create<Store>()(
         }));
       },
 
-      publishRfx: (id, supplierIds) => {
-        get().sendInvitations(id, {
-          internalSupplierIds: supplierIds,
-          externalSuppliers: [],
+      publishRfx: (id, buyerId) => {
+        const rfx = get().rfxRecords.find((r) => r.id === id);
+        if (!rfx || rfx.status !== "draft") return;
+
+        const now = new Date().toISOString();
+        set((s) => ({
+          rfxRecords: s.rfxRecords.map((r) =>
+            r.id === id
+              ? {
+                  ...r,
+                  status: "published" as RfxStatus,
+                  publishedAt: now,
+                  updatedAt: now,
+                }
+              : r
+          ),
+        }));
+
+        get().logActivity({
+          rfxId: id,
+          userId: buyerId,
+          action: "Published",
+          details: `${rfx.type} published and ready for supplier invitations`,
         });
       },
 
@@ -306,7 +326,11 @@ export const useStore = create<Store>()(
         });
 
         if (rfi.shortlistedSupplierIds.length > 0) {
-          get().publishRfx(rfpId, rfi.shortlistedSupplierIds);
+          get().publishRfx(rfpId, rfi.buyerId);
+          get().sendInvitations(rfpId, {
+            internalSupplierIds: rfi.shortlistedSupplierIds,
+            externalSuppliers: [],
+          });
         }
 
         return rfpId;
@@ -425,17 +449,25 @@ export const useStore = create<Store>()(
         const totalNew = newInternalIds.length + newExternal.length;
         if (totalNew === 0) return;
 
-        const isDraft = rfx.status === "draft";
-        const now = new Date().toISOString();
+        if (
+          rfx.status === "draft" ||
+          rfx.status === "closed" ||
+          rfx.status === "awarded"
+        ) {
+          return;
+        }
 
-        if (isDraft) {
+        const now = new Date().toISOString();
+        const opening = rfx.status === "published";
+
+        if (opening) {
           set((s) => ({
             rfxRecords: s.rfxRecords.map((r) =>
               r.id === rfxId
                 ? {
                     ...r,
                     status: "open" as RfxStatus,
-                    publishedAt: now,
+                    publishedAt: r.publishedAt ?? now,
                     updatedAt: now,
                   }
                 : r
@@ -484,9 +516,9 @@ export const useStore = create<Store>()(
         get().logActivity({
           rfxId,
           userId: rfx.buyerId,
-          action: isDraft ? "Published" : "Invited Suppliers",
-          details: isDraft
-            ? `${rfx.type} published with ${totalNew} invitation(s) (${newInternalIds.length} internal, ${newExternal.length} external)`
+          action: opening ? "Opened Solicitation" : "Invited Suppliers",
+          details: opening
+            ? `${rfx.type} opened with ${totalNew} invitation(s) (${newInternalIds.length} internal, ${newExternal.length} external)`
             : `Invited ${totalNew} supplier(s) (${newInternalIds.length} internal, ${newExternal.length} external)`,
         });
       },
@@ -584,8 +616,12 @@ export const useStore = create<Store>()(
       },
 
       saveSubmission: (submission) => {
+        if (!submission.supplierId) return;
+
         const rfx = get().rfxRecords.find((r) => r.id === submission.rfxId);
-        const existing = get().submissions.find((s) => s.id === submission.id);
+        const existing = get().submissions.find((s) =>
+          isSameSupplierSubmission(s, submission)
+        );
         if (
           rfx &&
           submission.status !== "submitted" &&
@@ -593,14 +629,29 @@ export const useStore = create<Store>()(
         ) {
           return;
         }
+
+        const id = getSubmissionId(submission.rfxId, submission.supplierId);
+        const normalized = { ...submission, id };
+
         set((s) => {
-          const idx = s.submissions.findIndex((sub) => sub.id === submission.id);
+          const idx = s.submissions.findIndex((sub) =>
+            isSameSupplierSubmission(sub, normalized)
+          );
           if (idx >= 0) {
             const updated = [...s.submissions];
-            updated[idx] = { ...submission, updatedAt: new Date().toISOString() };
+            updated[idx] = {
+              ...normalized,
+              id: updated[idx].id,
+              updatedAt: new Date().toISOString(),
+            };
             return { submissions: updated };
           }
-          return { submissions: [...s.submissions, submission] };
+          return {
+            submissions: [
+              ...s.submissions,
+              { ...normalized, updatedAt: new Date().toISOString() },
+            ],
+          };
         });
       },
 
@@ -608,6 +659,7 @@ export const useStore = create<Store>()(
         const now = new Date().toISOString();
         const sub = get().submissions.find((s) => s.id === submissionId);
         if (!sub) return;
+        if (sub.status === "submitted") return;
 
         const rfx = get().rfxRecords.find((r) => r.id === sub.rfxId);
         if (rfx && isSubmissionFrozen(rfx.dueDate, sub)) return;
@@ -754,6 +806,8 @@ export function getSupplierSubmission(
     (s) => s.rfxId === rfxId && s.supplierId === supplierId
   );
 }
+
+export { getSubmissionId } from "./submissions";
 
 export const STATUS_LABELS: Record<RfxStatus, string> = {
   draft: "Draft",

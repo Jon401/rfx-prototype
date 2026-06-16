@@ -150,13 +150,13 @@ export const SEED_DATA: AppState = {
       ],
       shortlistedSupplierIds: [],
     },
-    // RFI — Published (just sent, no Q&A or responses yet)
+    // RFI — Published (ready to invite, no suppliers yet)
     {
       id: "rfi-4",
       type: "RFI",
       title: "Facilities Management Providers",
       description: "Market scan for facilities management and maintenance providers.",
-      status: "open",
+      status: "published",
       buyerId: "buyer-1",
       createdAt: daysAgo(3),
       updatedAt: daysAgo(1),
@@ -432,8 +432,6 @@ export const SEED_DATA: AppState = {
     { id: "inv-3", rfxId: "rfi-1", supplierType: "internal", supplierId: "supplier-3", status: "pending", invitedAt: daysAgo(10) },
     { id: "inv-4", rfxId: "rfi-2", supplierType: "internal", supplierId: "supplier-1", status: "accepted", invitedAt: daysAgo(40), respondedAt: daysAgo(38) },
     { id: "inv-5", rfxId: "rfi-2", supplierType: "internal", supplierId: "supplier-2", status: "accepted", invitedAt: daysAgo(40), respondedAt: daysAgo(39) },
-    { id: "inv-6", rfxId: "rfi-4", supplierType: "internal", supplierId: "supplier-4", status: "accepted", invitedAt: daysAgo(1), respondedAt: daysAgo(1) },
-    { id: "inv-7", rfxId: "rfi-4", supplierType: "internal", supplierId: "supplier-5", status: "pending", invitedAt: daysAgo(1) },
     { id: "inv-8", rfxId: "rfi-5", supplierType: "internal", supplierId: "supplier-1", status: "accepted", invitedAt: daysAgo(15), respondedAt: daysAgo(14) },
     { id: "inv-9", rfxId: "rfi-5", supplierType: "internal", supplierId: "supplier-7", status: "accepted", invitedAt: daysAgo(15), respondedAt: daysAgo(13) },
     { id: "inv-10", rfxId: "rfq-1", supplierType: "internal", supplierId: "supplier-1", status: "accepted", invitedAt: daysAgo(5), respondedAt: daysAgo(4) },

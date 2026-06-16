@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useStore, getRfxQa } from "@/lib/store";
 import { formatRelative } from "@/lib/format";
+import { isRfxLive } from "@/lib/rfx-workflow";
 import type { RfxRecord } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -30,6 +31,14 @@ export function QaTabBuyer({ rfx }: { rfx: RfxRecord }) {
     toast.success(isPublic ? "Answer published to all suppliers" : "Answer posted");
     setAnswers((prev) => ({ ...prev, [qaId]: "" }));
   };
+
+  if (!isRfxLive(rfx)) {
+    return (
+      <p className="text-muted-foreground text-sm py-8 text-center">
+        Q&amp;A opens after you publish and invite suppliers.
+      </p>
+    );
+  }
 
   if (qaThreads.length === 0) {
     return (

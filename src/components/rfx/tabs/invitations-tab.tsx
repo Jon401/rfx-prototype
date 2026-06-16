@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useStore, getRfxInvitations } from "@/lib/store";
 import { formatDate } from "@/lib/format";
+import { canPublishRfx, canInviteSuppliers } from "@/lib/rfx-workflow";
+import { STIMULUS_BADGE } from "@/lib/stimulus-styles";
 import type { RfxRecord } from "@/lib/types";
 import { UserPlus } from "lucide-react";
-import { STIMULUS_BADGE } from "@/lib/stimulus-styles";
 import {
   InviteSuppliersDialog,
   getInvitationDisplay,
@@ -42,14 +43,26 @@ export function InvitationsTab({ rfx }: { rfx: RfxRecord }) {
     [invitations]
   );
 
-  const canInvite = rfx.status !== "closed" && rfx.status !== "awarded";
+  const canInvite = canInviteSuppliers(rfx);
+  const isDraft = canPublishRfx(rfx);
 
   return (
     <div className="space-y-6">
+      {isDraft && (
+        <Card className="border-stim-warning/30 bg-stim-warning/5">
+          <CardContent className="py-4">
+            <p className="text-sm">
+              This {rfx.type} is still a <strong>draft</strong>. Publish it from the workflow
+              banner above before inviting suppliers.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {canInvite && (
         <Button onClick={() => setDialogOpen(true)}>
           <UserPlus className="mr-1.5 h-4 w-4" />
-          {rfx.status === "draft" ? "Publish & Invite Suppliers" : "Invite Suppliers"}
+          Invite Suppliers
         </Button>
       )}
 
@@ -110,7 +123,8 @@ export function InvitationsTab({ rfx }: { rfx: RfxRecord }) {
       ) : (
         canInvite && (
           <p className="text-muted-foreground text-sm">
-            No suppliers invited yet. Click the button above to invite internal or external suppliers.
+            No suppliers invited yet. Sending invitations will open this solicitation for
+            supplier responses.
           </p>
         )
       )}

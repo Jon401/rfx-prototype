@@ -133,8 +133,8 @@ export function InviteSuppliersDialog({
     }
 
     toast.success(
-      rfx.status === "draft"
-        ? `Published and invited ${parts.join(" + ")} supplier(s)`
+      rfx.status === "published"
+        ? `Opened solicitation — invited ${parts.join(" + ")} supplier(s)`
         : `Invited ${parts.join(" + ")} supplier(s)`
     );
     handleClose(false);
@@ -144,10 +144,11 @@ export function InviteSuppliersDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {rfx.status === "draft" ? "Publish & Invite Suppliers" : "Invite Suppliers"}
-          </DialogTitle>
+          <DialogTitle>Invite Suppliers</DialogTitle>
           <DialogDescription>
+            {rfx.status === "published"
+              ? "Inviting suppliers will open this solicitation for Q&A and submissions. "
+              : "Add more suppliers to this open solicitation. "}
             Invite internal suppliers from your directory or add external contacts by email.
             You can combine both in a single send.
           </DialogDescription>
@@ -313,7 +314,7 @@ export function InviteSuppliersDialog({
           <div className="flex gap-2 ml-auto">
             {step === "choose" && totalToSend > 0 && (
               <Button onClick={handleSend}>
-                {rfx.status === "draft" ? "Publish & Send" : "Send Invitations"}
+                {rfx.status === "published" ? "Open & Send Invitations" : "Send Invitations"}
                 {" "}({totalToSend})
               </Button>
             )}
@@ -337,7 +338,7 @@ export function InviteSuppliersDialog({
                   )}
                 </Button>
                 <Button onClick={handleSend} disabled={totalToSend === 0}>
-                  {rfx.status === "draft" ? "Publish & Send" : "Send"}
+                  {rfx.status === "published" ? "Open & Send" : "Send"}
                   {totalToSend > 0 && ` (${totalToSend})`}
                 </Button>
               </>

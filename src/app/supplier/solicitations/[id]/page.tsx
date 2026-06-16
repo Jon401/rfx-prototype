@@ -13,6 +13,7 @@ import {
   useStore,
 } from "@/lib/store";
 import { formatDate, formatRelative } from "@/lib/format";
+import { isRfxLive } from "@/lib/rfx-workflow";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -59,6 +60,8 @@ export default function SupplierSolicitationDetailPage({
     (i) => i.rfxId === id && i.supplierId === currentUserId
   );
   const buyer = users.find((u) => u.id === rfx.buyerId);
+  const isLive = isRfxLive(rfx);
+  const isClosed = rfx.status === "closed" || rfx.status === "awarded";
 
   const handleAsk = () => {
     if (!question.trim()) return;
@@ -153,18 +156,24 @@ export default function SupplierSolicitationDetailPage({
         </TabsContent>
 
         <TabsContent value="qa" className="mt-4 space-y-4">
+          {!isLive ? (
+            <p className="text-muted-foreground text-sm py-8 text-center">
+              Q&amp;A will open when the buyer opens this solicitation.
+            </p>
+          ) : (
           <div className="space-y-3 max-w-lg">
             <Textarea
               placeholder="Type your question..."
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               rows={3}
-              disabled={rfx.status === "closed" || rfx.status === "awarded"}
+              disabled={isClosed}
             />
-            <Button onClick={handleAsk} disabled={rfx.status === "closed" || rfx.status === "awarded"}>
+            <Button onClick={handleAsk} disabled={isClosed}>
               Submit Question
             </Button>
           </div>
+          )}
 
           {myQa.length > 0 && (
             <div className="space-y-3 mt-6">
@@ -189,7 +198,11 @@ export default function SupplierSolicitationDetailPage({
         </TabsContent>
 
         <TabsContent value="submit" className="mt-4">
-          {invitation?.status !== "accepted" ? (
+          {!isLive ? (
+            <p className="text-muted-foreground text-sm py-8 text-center">
+              Submissions open when the buyer publishes and invites suppliers.
+            </p>
+          ) : invitation?.status !== "accepted" ? (
             <p className="text-muted-foreground text-sm py-8 text-center">
               Accept the invitation to submit your response.
             </p>

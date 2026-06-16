@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useStore } from "@/lib/store";
 import type { RfqLineItem } from "@/lib/types";
-import { CreateSupplierInviteSection } from "./create-supplier-invite-section";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,13 +19,11 @@ function uid() {
 export function CreateRfqForm() {
   const router = useRouter();
   const createRfq = useStore((s) => s.createRfq);
-  const sendInvitations = useStore((s) => s.sendInvitations);
   const currentUserId = useStore((s) => s.currentUserId);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
   const [lineItems, setLineItems] = useState<RfqLineItem[]>([
     { id: uid(), description: "", quantity: 1, unit: "each" },
   ]);
@@ -66,17 +63,7 @@ export function CreateRfqForm() {
       lineItems: validItems,
       buyerId: currentUserId,
     });
-    if (selectedSuppliers.length > 0) {
-      sendInvitations(id, {
-        internalSupplierIds: selectedSuppliers,
-        externalSuppliers: [],
-      });
-      toast.success(
-        `RFQ published — ${selectedSuppliers.length} supplier(s) invited`
-      );
-    } else {
-      toast.success("RFQ created as draft — invite suppliers from the Invitations tab");
-    }
+    toast.success("RFQ created as draft — publish it when ready to invite suppliers");
     router.push(`/buyer/rfqs/${id}`);
   };
 
@@ -157,14 +144,7 @@ export function CreateRfqForm() {
         ))}
       </div>
 
-      <CreateSupplierInviteSection
-        selectedIds={selectedSuppliers}
-        onChange={setSelectedSuppliers}
-      />
-
-      <Button type="submit">
-        {selectedSuppliers.length > 0 ? "Create & Invite Suppliers" : "Create RFQ Draft"}
-      </Button>
+      <Button type="submit">Create RFQ Draft</Button>
     </form>
   );
 }

@@ -10,7 +10,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/lib/store";
 import type { RfpSection, ScoringCriterion } from "@/lib/types";
-import { CreateSupplierInviteSection } from "./create-supplier-invite-section";
 import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,13 +20,11 @@ function uid(prefix: string) {
 export function CreateRfpForm() {
   const router = useRouter();
   const createRfp = useStore((s) => s.createRfp);
-  const sendInvitations = useStore((s) => s.sendInvitations);
   const currentUserId = useStore((s) => s.currentUserId);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
-  const [selectedSuppliers, setSelectedSuppliers] = useState<string[]>([]);
   const [sections, setSections] = useState<RfpSection[]>([
     { id: uid("sec"), title: "", description: "", required: true },
   ]);
@@ -73,17 +70,7 @@ export function CreateRfpForm() {
       scoringCriteria: validCriteria,
       buyerId: currentUserId,
     });
-    if (selectedSuppliers.length > 0) {
-      sendInvitations(id, {
-        internalSupplierIds: selectedSuppliers,
-        externalSuppliers: [],
-      });
-      toast.success(
-        `RFP published — ${selectedSuppliers.length} supplier(s) invited`
-      );
-    } else {
-      toast.success("RFP created as draft — invite suppliers from the Invitations tab");
-    }
+    toast.success("RFP created as draft — publish it when ready to invite suppliers");
     router.push(`/buyer/rfps/${id}`);
   };
 
@@ -242,14 +229,7 @@ export function CreateRfpForm() {
         ))}
       </div>
 
-      <CreateSupplierInviteSection
-        selectedIds={selectedSuppliers}
-        onChange={setSelectedSuppliers}
-      />
-
-      <Button type="submit">
-        {selectedSuppliers.length > 0 ? "Create & Invite Suppliers" : "Create RFP Draft"}
-      </Button>
+      <Button type="submit">Create RFP Draft</Button>
     </form>
   );
 }

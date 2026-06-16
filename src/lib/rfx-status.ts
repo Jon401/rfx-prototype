@@ -43,14 +43,13 @@ export function getDisplayStatus(
   if (rfx.status === "draft") return "draft";
   if (rfx.status === "closed") return "closed";
   if (rfx.status === "awarded") return "awarded";
+  if (rfx.status === "published") return "published";
 
   const qa = state.qaThreads.filter((q) => q.rfxId === rfx.id);
   const hasUnansweredQa = qa.some((q) => !q.answer);
   const subs = state.submissions.filter((s) => s.rfxId === rfx.id);
   const hasSubmitted = subs.some((s) => s.status === "submitted");
   const hasInvitations = state.invitations.some((i) => i.rfxId === rfx.id);
-
-  if (!rfx.publishedAt && !hasInvitations) return "published";
 
   if (hasUnansweredQa) return "qa_open";
 
